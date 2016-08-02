@@ -1,0 +1,31 @@
+{
+  "name": "react-angular",
+  "version": "0.0.1",
+  "description": "Use AngularJS 1.x templates in react components",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "babel src -d lib --source-maps",
+    "build:watch": "npm run build -- -w",
+    "test": "mocha \"lib/**/*.test.js\"",
+    "test:watch": "npm test -- -w"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fmauquie/react-angular.git"
+  },
+  "author": "Fabien Mauquié",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fmauquie/react-angular/issues"
+  },
+  "homepage": "https://github.com/fmauquie/react-angular#readme",
+  "devDependencies": {
+    "angular": "^1.5.8",
+    "babel-cli": "^6.11.4",
+    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-react": "^6.11.1",
+    "babel-preset-stage-2": "^6.11.0",
+    "mocha": "^3.0.0",
+    "react": "^15.3.0"
+  }
+}
