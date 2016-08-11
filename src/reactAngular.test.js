@@ -72,8 +72,8 @@ describe('ReactAngular', () => {
     expect(element.prop('tagName')).to.equal('DIV');
   });
 
-  it('applies the requested tag', () => {
-    const element = compile(() => <ReactAngular tag="span" template="plop"/>);
+  it('applies the requested wrapper tag', () => {
+    const element = compile(() => <ReactAngular wrapperTag="span" template="plop"/>);
 
     expect(element.prop('tagName')).to.equal('SPAN');
   });
@@ -149,7 +149,7 @@ describe('ReactAngular', () => {
   it('applies attributes to the surrounding tag', () => {
     const element = compile(() => <ReactAngular
       template="plop"
-      tagAttrs={{
+      wrapperAttrs={{
         id: 'plop',
         'data-ng-bind': '"pof"',
         'aria-role': 'menu',

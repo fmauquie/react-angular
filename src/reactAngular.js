@@ -52,10 +52,10 @@ export default class ReactAngular extends React.Component {
   }
 
   render() {
-    const { tag, className, tagAttrs } = this.props;
+    const { wrapperTag, className, wrapperAttrs } = this.props;
 
-    return React.createElement(tag, {
-      ...tagAttrs,
+    return React.createElement(wrapperTag, {
+      ...wrapperAttrs,
       ref: (element) => this.$element = element,
       className,
     }, '');
@@ -69,16 +69,16 @@ ReactAngular.propTypes = {
   inject: t.object,
   isolate: t.bool,
   scope: t.oneOfType([t.bool, t.object]),
-  tag: t.string,
-  tagAttrs: t.object,
   template: t.oneOfType([t.string, t.func]),
   templateUrl: t.string,
+  wrapperTag: t.string,
+  wrapperAttrs: t.object,
 };
 
 ReactAngular.defaultProps = {
   inject: {},
   isolate: false,
   scope: true,
-  tag: 'div',
-  tagAttrs: {},
+  wrapperTag: 'div',
+  wrapperAttrs: {},
 };
