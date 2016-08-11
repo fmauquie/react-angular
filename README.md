@@ -3,7 +3,7 @@ Use AngularJS 1.x templates in react components
 
 When converting an application from Angular to React, or using React in an Angular application,
 we usually use `ngReact` to embed our React components.
-However, it it then close to impossible to use existing AngularJS directives inside the React components.
+However, it is then close to impossible to use existing AngularJS directives inside the React components.
 
 Or rather, it was…
 
@@ -45,11 +45,11 @@ export default function SomeComponent(props) {
 `ReactAngular` will render the AngularJS template in a wrapper `div`.
 The wrapper `div` is fully customizable (see Advanced Usage below).
 
-Once the template rendered, `ReactAngular` will leave the control to AngularJS for the template updates.
+Once the template is rendered, `ReactAngular` will leave the control to AngularJS for DOM updates.
 Props updates will _not_ be applied.
 
 The AngularJS application must already be started
-(module must be defined and `ng-app` must be present on a parent element).
+(Angular module must be defined and `ng-app` must be present on a parent element).
 
 ## Basic Props
 
@@ -103,6 +103,9 @@ export default function MyComponent(props) {
     template="<div ng-class='{ active: doc.hasClass }'></div>"
     controller={controller}
     controllerAs="doc"
+    inject={{
+      someClass: 'document-active',
+    }}
   />;
 }
 ```
@@ -144,13 +147,13 @@ or a function (generated in JS or a Pug/Jade import).
 
 If you specify a function, the object provided in `inject` will be passed as the first argument.
 
-If both are `template` and `templateUrl` are specified, `template` will be used.
+If both `template` and `templateUrl` are specified, `template` will be used.
 
 ### templateUrl: `String`
 Use a template from Angular's template cache.
 This allows you to use a template loader or template scripts as the template source.
 
-If both are `template` and `templateUrl` are specified, `template` will be used.
+If both `template` and `templateUrl` are specified, `template` will be used.
 
 ### wrapperTag: `String`
 The wrapper tag to use. By default it is a `div`.
