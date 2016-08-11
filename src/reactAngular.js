@@ -5,23 +5,18 @@ export default class ReactAngular extends React.Component {
   componentDidMount() {
     const { controller, controllerAs, inject, isolate, scope, template, templateUrl } = this.props;
 
-    if (!template && !templateUrl) {
-      throw new Error('ReactAngular needs a template or a templateUrl');
-    }
-
-    const $element = angular.element(this.$element);
-    const parentScope = $element.scope();
-    const $injector = $element.injector();
+    const parentScope = this.$element.scope();
+    const $injector = this.$element.injector();
 
     const $controller = $injector.get('$controller');
     const $compile = $injector.get('$compile');
     const $rootScope = $injector.get('$rootScope');
     const $templateCache = $injector.get('$templateCache');
 
-    const $scope = scope ? parentScope.$new(isolate) : parentScope;
+    this.$scope = scope ? parentScope.$new(isolate) : parentScope;
 
     if (angular.isObject(scope)) {
-      angular.extend($scope, scope);
+      angular.extend(this.$scope, scope);
     }
 
     const actualTemplateFunc = template || (templateUrl ? $templateCache.get(templateUrl) : null);
@@ -33,18 +28,21 @@ export default class ReactAngular extends React.Component {
     if (controller) {
       const instantiatedController = $controller(controller, {
         ...inject,
-        $scope,
-        $element,
+        $scope: this.$scope,
+        $element: this.$element,
       });
 
       if (controllerAs) {
-        $scope[controllerAs] = instantiatedController;
+        this.$scope[controllerAs] = instantiatedController;
       }
     }
 
-    $element.append(actualTemplate);
-    $compile($element)($scope);
-    $rootScope.$applyAsync();
+    if (actualTemplate) {
+      this.$element.append(actualTemplate);
+    }
+
+    $compile(this.$element)(this.$scope);
+    $rootScope.$evalAsync();
   }
 
   shouldComponentUpdate() {
@@ -56,7 +54,7 @@ export default class ReactAngular extends React.Component {
 
     return React.createElement(wrapperTag, {
       ...wrapperAttrs,
-      ref: (element) => this.$element = element,
+      ref: (element) => this.$element = angular.element(element),
       className,
     }, '');
   }

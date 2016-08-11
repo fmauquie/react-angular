@@ -61,25 +61,25 @@ describe('ReactAngular', () => {
   });
 
   it('applies the class to the wrapper', () => {
-    const element = compile(() => <ReactAngular className="plop" template="pof"/>);
+    const element = compile(() => <ReactAngular className="plop"/>);
 
     expect(element.hasClass('plop')).to.be.true;
   });
 
   it('wraps with a div by default', () => {
-    const element = compile(() => <ReactAngular template="plop"/>);
+    const element = compile(() => <ReactAngular/>);
 
     expect(element.prop('tagName')).to.equal('DIV');
   });
 
   it('applies the requested wrapper tag', () => {
-    const element = compile(() => <ReactAngular wrapperTag="span" template="plop"/>);
+    const element = compile(() => <ReactAngular wrapperTag="span"/>);
 
     expect(element.prop('tagName')).to.equal('SPAN');
   });
 
   it('creates a new scope by default', () => {
-    const element = compile(() => <ReactAngular template="plop"/>);
+    const element = compile(() => <ReactAngular/>);
 
     const scope = element.scope();
     expect(scope.$parent).to.equal($rootScope);
@@ -87,13 +87,13 @@ describe('ReactAngular', () => {
   });
 
   it('can prevent a new scope from being created', () => {
-    const element = compile(() => <ReactAngular scope={false} template="plop"/>);
+    const element = compile(() => <ReactAngular scope={false}/>);
 
     expect(element.scope()).to.equal($rootScope);
   });
 
   it('can create an isolate scope', () => {
-    const element = compile(() => <ReactAngular isolate template="plop"/>);
+    const element = compile(() => <ReactAngular isolate/>);
 
     const scope = element.scope();
     expect(scope.$parent).to.not.equal(Object.getPrototypeOf(scope));
@@ -148,7 +148,6 @@ describe('ReactAngular', () => {
 
   it('applies attributes to the surrounding tag', () => {
     const element = compile(() => <ReactAngular
-      template="plop"
       wrapperAttrs={{
         id: 'plop',
         'data-ng-bind': '"pof"',
@@ -159,5 +158,26 @@ describe('ReactAngular', () => {
     expect(element.html()).to.equal('pof');
     expect(element.attr('id')).to.equal('plop');
     expect(element.attr('aria-role')).to.equal('menu');
+  });
+
+
+  it('exposes the scope in the API', () => {
+    const found = {};
+    class Component extends React.Component {
+      componentDidMount() {
+        found.$scope = this.ra.$scope;
+        found.$element = this.ra.$element;
+      }
+
+      render() {
+        return <ReactAngular ref={(ra) => this.ra = ra}/>;
+      }
+    }
+    compile(Component);
+
+    expect(found.$scope).to.exist;
+    expect(found.$scope.$parent).to.equal($rootScope);
+    expect(found.$element).to.exist;
+    expect(found.$element.prop('tagName')).to.equal('DIV');
   });
 });
