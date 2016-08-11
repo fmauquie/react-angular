@@ -1,4 +1,8 @@
 *.test.js
 *.test.js.map
 node_modules/
+karma.conf.js
+tests.webpack.js
+.editorconfig
+.babelrc
 npm-debug.log
