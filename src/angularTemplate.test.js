@@ -6,9 +6,9 @@ import React from 'react';
 
 import AngularTemplate from './angularTemplate';
 
-angular.module('test', [ngReact.name])
+angular.module('testAngularTemplate', [ngReact.name])
   .value('Component', null)
-  .decorator('Component', ($delegate) => angular.module('test').Component)
+  .decorator('Component', ($delegate) => angular.module('testAngularTemplate').Component)
   .directive('simpleTemplateDirective', () => ({
     restrict: 'E',
     template: '<div class="simple"></div>',
@@ -20,7 +20,7 @@ describe('AngularTemplate', () => {
   let $rootScope;
   let $container;
 
-  beforeEach(angular.mock.module('test'));
+  beforeEach(angular.mock.module('testAngularTemplate'));
   beforeEach(angular.mock.inject(($injector, $document) => {
     $container = angular.element('<div></div>');
     $container.data('$injector', $injector);
@@ -35,7 +35,7 @@ describe('AngularTemplate', () => {
   });
 
   const compile = (Component) => {
-    angular.module('test').Component = Component;
+    angular.module('testAngularTemplate').Component = Component;
 
     const element = $compile('<react-component name="Component"></react-component>')($rootScope, (clone) => {
       $container.append(clone);
