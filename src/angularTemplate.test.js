@@ -9,6 +9,10 @@ import AngularTemplate from './angularTemplate';
 angular.module('test', [ngReact.name])
   .value('Component', null)
   .decorator('Component', ($delegate) => angular.module('test').Component)
+  .directive('simpleTemplateDirective', () => ({
+    restrict: 'E',
+    template: '<div class="simple"></div>',
+  }))
 ;
 
 describe('AngularTemplate', () => {
@@ -76,6 +80,13 @@ describe('AngularTemplate', () => {
     const element = compile(() => <AngularTemplate wrapperTag="span"/>);
 
     expect(element.prop('tagName')).to.equal('SPAN');
+  });
+
+  it('applies the requested wrapper directive', () => {
+    const element = compile(() => <AngularTemplate wrapperTag="simple-template-directive"/>);
+
+    expect(element.prop('tagName')).to.equal('SIMPLE-TEMPLATE-DIRECTIVE');
+    expect(element.children().hasClass('simple')).to.be.true;
   });
 
   it('creates a new scope by default', () => {
