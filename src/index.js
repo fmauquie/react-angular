@@ -1,3 +1,3 @@
-import ReactAngular from './reactAngular';
+import AngularTemplate from './angularTemplate';
 
-export default ReactAngular;
+export default AngularTemplate;

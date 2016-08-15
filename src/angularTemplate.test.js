@@ -4,14 +4,14 @@ import { expect } from 'chai';
 import ngReact from 'ngreact';
 import React from 'react';
 
-import ReactAngular from './reactAngular';
+import AngularTemplate from './angularTemplate';
 
 angular.module('test', [ngReact.name])
   .value('Component', null)
   .decorator('Component', ($delegate) => angular.module('test').Component)
 ;
 
-describe('ReactAngular', () => {
+describe('AngularTemplate', () => {
   let $compile;
   let $rootScope;
   let $container;
@@ -42,44 +42,44 @@ describe('ReactAngular', () => {
   };
 
   it('works with simple HTML', () => {
-    const element = compile(() => <ReactAngular template="<h1>plop</h1>"/>);
+    const element = compile(() => <AngularTemplate template="<h1>plop</h1>"/>);
 
     expect(element.find('h1').html()).to.equal('plop');
   });
 
   it('works with an interpolation', () => {
-    const element = compile(() => <ReactAngular template="<h1>{{1+1}}</h1>"/>);
+    const element = compile(() => <AngularTemplate template="<h1>{{1+1}}</h1>"/>);
 
     expect(element.find('h1').html()).to.equal('2');
   });
 
   it('injects values in the function template', () => {
     const template = ({ value }) => value;
-    const element = compile(() => <ReactAngular template={template} inject={{ value: 'plop' }}/>);
+    const element = compile(() => <AngularTemplate template={template} inject={{ value: 'plop' }}/>);
 
     expect(element.html()).to.equal('plop');
   });
 
   it('applies the class to the wrapper', () => {
-    const element = compile(() => <ReactAngular className="plop"/>);
+    const element = compile(() => <AngularTemplate className="plop"/>);
 
     expect(element.hasClass('plop')).to.be.true;
   });
 
   it('wraps with a div by default', () => {
-    const element = compile(() => <ReactAngular/>);
+    const element = compile(() => <AngularTemplate/>);
 
     expect(element.prop('tagName')).to.equal('DIV');
   });
 
   it('applies the requested wrapper tag', () => {
-    const element = compile(() => <ReactAngular wrapperTag="span"/>);
+    const element = compile(() => <AngularTemplate wrapperTag="span"/>);
 
     expect(element.prop('tagName')).to.equal('SPAN');
   });
 
   it('creates a new scope by default', () => {
-    const element = compile(() => <ReactAngular/>);
+    const element = compile(() => <AngularTemplate/>);
 
     const scope = element.scope();
     expect(scope.$parent).to.equal($rootScope);
@@ -87,27 +87,27 @@ describe('ReactAngular', () => {
   });
 
   it('can prevent a new scope from being created', () => {
-    const element = compile(() => <ReactAngular scope={false}/>);
+    const element = compile(() => <AngularTemplate scope={false}/>);
 
     expect(element.scope()).to.equal($rootScope);
   });
 
   it('can create an isolate scope', () => {
-    const element = compile(() => <ReactAngular isolate/>);
+    const element = compile(() => <AngularTemplate isolate/>);
 
     const scope = element.scope();
     expect(scope.$parent).to.not.equal(Object.getPrototypeOf(scope));
   });
 
   it('injects scope variables', () => {
-    const element = compile(() => <ReactAngular scope={{ plop: 'pof' }} template="{{plop}}"/>);
+    const element = compile(() => <AngularTemplate scope={{ plop: 'pof' }} template="{{plop}}"/>);
 
     expect(element.html()).to.equal('pof');
   });
 
   it('can use a template URL', angular.mock.inject(($templateCache) => {
     $templateCache.put('plop.html', 'plop');
-    const element = compile(() => <ReactAngular templateUrl="plop.html"/>);
+    const element = compile(() => <AngularTemplate templateUrl="plop.html"/>);
 
     expect(element.html()).to.equal('plop');
   }));
@@ -119,7 +119,7 @@ describe('ReactAngular', () => {
         $scope.plop = value;
       }
     }
-    const element = compile(() => <ReactAngular
+    const element = compile(() => <AngularTemplate
       controller={Controller}
       template="{{plop}}"
       inject={{ value: 'pof' }}
@@ -136,7 +136,7 @@ describe('ReactAngular', () => {
       }
     }
 
-    const element = compile(() => <ReactAngular
+    const element = compile(() => <AngularTemplate
       controller={Controller}
       controllerAs="ctl"
       template="{{ctl.plop}}"
@@ -147,7 +147,7 @@ describe('ReactAngular', () => {
   });
 
   it('applies attributes to the surrounding tag', () => {
-    const element = compile(() => <ReactAngular
+    const element = compile(() => <AngularTemplate
       wrapperAttrs={{
         id: 'plop',
         'data-ng-bind': '"pof"',
@@ -170,7 +170,7 @@ describe('ReactAngular', () => {
       }
 
       render() {
-        return <ReactAngular ref={(ra) => this.ra = ra}/>;
+        return <AngularTemplate ref={(ra) => this.ra = ra}/>;
       }
     }
     compile(Component);

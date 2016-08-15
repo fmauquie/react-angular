@@ -8,7 +8,7 @@ However, it is then close to impossible to use existing AngularJS directives ins
 Or rather, it was…
 
 `ReactAngular` allows you to use AngularJS templates, directives, controllers and services inside a React component.
-It does so by providing a React component, called `ReactAngular`,
+It does so by providing a React component, called `AngularTemplate`,
 to which you pass the template and controller you want to use.
 
 ## Installation
@@ -26,14 +26,14 @@ but is really only tested with React 15 and Angular 1.5.
 ## Usage
 ```js
 import React from 'react';
-import ReactAngular from 'react-angular';
+import AngularTemplate from 'react-angular';
 
 import styles from './someStyles.css';
 import template from './someTemplate.[pug,jade,html]';
 import controller from './someController';
 
 export default function SomeComponent(props) {
-  return <ReactAngular
+  return <AngularTemplate
     className={styles.wrapper}
     template={template}
     controller={controller}
@@ -42,10 +42,10 @@ export default function SomeComponent(props) {
 }
 ```
 
-`ReactAngular` will render the AngularJS template in a wrapper `div`.
+`AngularTemplate` will render the AngularJS template in a wrapper `div`.
 The wrapper `div` is fully customizable (see Advanced Usage below).
 
-Once the template is rendered, `ReactAngular` will leave the control to AngularJS for DOM updates.
+Once the template is rendered, `AngularTemplate` will leave the control to AngularJS for DOM updates.
 Props updates will _not_ be applied.
 
 The AngularJS application must already be started
@@ -94,12 +94,12 @@ export default function MyController($document, someClass) {
 `MyComponent.jsx`:
 ```js
 import React from 'react';
-import ReactAngular from 'ReactAngular';
+import AngularTemplate from 'react-angular';
 
 import controler from './controller';
 
 export default function MyComponent(props) {
-  return <ReactAngular
+  return <AngularTemplate
     template="<div ng-class='{ active: doc.hasClass }'></div>"
     controller={controller}
     controllerAs="doc"
@@ -127,10 +127,10 @@ If you pass an object, any value in the object will be copied to the created sco
 Example:
 ```js
 import React from 'react';
-import ReactAngular from 'ReactAngular';
+import AngularTemplate from 'react-angular';
 
 export default function MyComponent(props) {
-  return <ReactAngular
+  return <AngularTemplate
     template="<div ng-bind='someValue'></div>"
     scope={{
       someValue: props.value || 'unknown',
@@ -174,10 +174,10 @@ No transformation will be applied to the attributes, so they have to be passed a
 Since AngularJS and React have a different approach to updating the DOM,
 property updates will _not_ be propagated to the managed scope or controller.
 
-You should *never* count on Angular updating a property passed to `ReactAngular`,
-although `ReactAngular` does not do anything to prevent it.
+You should *never* count on Angular updating a property passed to `AngularTemplate`,
+although `AngularTemplate` does not do anything to prevent it.
 
-If you want to watch scope changes, you should reference the `ReactAngular` instance and add watchers to the scope
+If you want to watch scope changes, you should reference the `AngularTemplate` instance and add watchers to the scope
 (see Advanced Usage below).
 
 ### Using `require()`
@@ -185,7 +185,7 @@ Since the library is written in ES6 and transpiled with Babel,
 when using `require()` instead of `import` to import it,
 you must explicitly ask for the default export:
 ```js
-var ReactAngular = require('react-angular').default;
+var AngularTemplate = require('react-angular').default;
 ```
 
 ### Wrapper Element Manipulation
@@ -211,7 +211,7 @@ In many instances it is easier and more secure to just add a class to the wrappe
 or to change the wrapper element to a `span` using the `wrapperTag` prop.
 
 ### API
-By referencing the `ReactAngular` component,
+By referencing the `AngularTemplate` component,
 you can get access to several component attributes that allow you to manipulate the created AngularJS structure:
 
 - `$scope`: This is the scope used to compile the wrapper tag and the template.
@@ -222,7 +222,7 @@ you can get access to several component attributes that allow you to manipulate 
 Example:
 ```js
 import React from 'react';
-import ReactAngular from 'ReactAngular';
+import AngularTemplate from 'react-angular';
 
 export default class MyComponent {
   componentDidMount() {
@@ -233,7 +233,7 @@ export default class MyComponent {
   }
 
   render() {
-    return <ReactAngular
+    return <AngularTemplate
       ref={(reactAngular) => this.reactAngular = reactAngular}
       template="<div ng-click='someValue++'></div>"
       scope={{
