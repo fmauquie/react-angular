@@ -4,7 +4,8 @@
   "description": "Use AngularJS 1.x templates in react components",
   "main": "lib/index.js",
   "scripts": {
-    "build": "babel src -d lib --source-maps",
+    "clean": "rm -Rf lib",
+    "build": "npm run clean && babel src -d lib --source-maps",
     "build:watch": "npm run build -- -w",
     "test": "karma start karma.conf.js",
     "test:watch": "karma start karma.conf.js --no-single-run"
