@@ -308,6 +308,16 @@ Contributions to the documentation and the code are welcome, just make a PR!
 
 Remember to contribute the test along with the feature (or the test that shows up the bug).
 
+To run a continuous build:
+```sh
+npm run build:watch
+```
+
+To run continuous testing:
+```sh
+npm run test:watch
+```
+
 ## Authors and license
 This library is licenced under the MIT licence (see LICENCE file).
 
