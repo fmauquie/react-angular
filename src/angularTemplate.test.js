@@ -2,7 +2,7 @@ import angular from 'angular';
 import 'angular-mocks';
 import { expect } from 'chai';
 import ngReact from 'ngreact';
-import React from 'react';
+import React, { PropTypes as t } from 'react';
 
 import AngularTemplate from './angularTemplate';
 
@@ -16,6 +16,11 @@ angular.module('testAngularTemplate', [ngReact.name])
   .directive('simpleTemplateDirective', () => ({
     restrict: 'E',
     template: '<div class="simple"></div>',
+  }))
+  .directive('transcludeDirective', () => ({
+    restrict: 'E',
+    transclude: true,
+    template: '<div class="transclude"><div class="one">plop</div><div class="two" ng-transclude></div></div>',
   }))
 ;
 
@@ -38,10 +43,11 @@ describe('AngularTemplate', () => {
     $container.remove();
   });
 
-  const compile = (Component) => {
+  const compile = (Component, props = {}) => {
     angular.module('testAngularTemplate').Component = Component;
+    $rootScope.props = props;
 
-    const element = $compile('<react-component name="Component"></react-component>')($rootScope, (clone) => {
+    const element = $compile('<react-component name="Component" props="props"></react-component>')($rootScope, (clone) => {
       $container.append(clone);
     });
     $rootScope.$digest();
@@ -114,6 +120,44 @@ describe('AngularTemplate', () => {
     expect(element.hasClass('pof')).to.be.true;
     // ng-bind removes the actual directive content from the element
     expect(element.html()).to.equal('pof');
+  });
+
+  it('works with transcluding directives', () => {
+    const element = compile(() => <AngularTemplate className="plop">
+      <transclude-directive>
+        <plop/>
+      </transclude-directive>
+    </AngularTemplate>);
+
+    expect(element.prop('tagName')).to.equal('TRANSCLUDE-DIRECTIVE');
+    expect(element.children().hasClass('transclude')).to.be.true;
+    expect(element.children().children().eq(0).hasClass('one')).to.be.true;
+    expect(element.children().children().eq(1).hasClass('two')).to.be.true;
+    expect(element.children().children().eq(1).children().prop('tagName')).to.equal('PLOP');
+    expect(element.children().children().eq(1).children().children().hasClass('plop')).to.be.true;
+  });
+
+  it('does not crash on props update', () => {
+    const Component = (props) => <AngularTemplate className="plop">
+      <plop data-ng-class="props.plop"/>
+    </AngularTemplate>;
+    Component.propTypes = {
+      plop: t.string,
+    };
+    const props = {
+      plop: 'plop',
+    };
+    const element = compile(Component, props);
+
+    expect(element.prop('tagName')).to.equal('PLOP');
+    expect(element.hasClass('plop')).to.be.true;
+    expect(element.hasClass('pof')).to.be.false;
+
+    props.plop = 'pof';
+    $rootScope.$apply();
+
+    expect(element.hasClass('plop')).to.be.false;
+    expect(element.hasClass('pof')).to.be.true;
   });
 
   it('creates a new scope by default', () => {
