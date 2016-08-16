@@ -323,3 +323,14 @@ This library is licenced under the MIT licence (see LICENCE file).
 
 Authors:
 - Fabien Mauquié
+
+## Changelog
+
+v0.2.0
+- Change directive name to `AngularTemplate` (better readability)
+- JSX children rendering
+
+v0.1.0
+- Initial version
+- ReactAngular component
+- Template rendering
