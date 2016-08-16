@@ -22,6 +22,11 @@ angular.module('testAngularTemplate', [ngReact.name])
     transclude: true,
     template: '<div class="transclude"><div class="one">plop</div><div class="two" ng-transclude></div></div>',
   }))
+  .directive('replaceDirective', () => ({
+    restrict: 'E',
+    replace: true,
+    template: '<div class="replace"></div>',
+  }))
 ;
 
 describe('AngularTemplate', () => {
@@ -123,7 +128,7 @@ describe('AngularTemplate', () => {
   });
 
   it('works with transcluding directives', () => {
-    const element = compile(() => <AngularTemplate className="plop">
+    const element = compile(() => <AngularTemplate>
       <transclude-directive>
         <plop/>
       </transclude-directive>
@@ -135,6 +140,34 @@ describe('AngularTemplate', () => {
     expect(element.children().children().eq(1).hasClass('two')).to.be.true;
     expect(element.children().children().eq(1).children().prop('tagName')).to.equal('PLOP');
     expect(element.children().children().eq(1).children().children().hasClass('plop')).to.be.true;
+  });
+
+  it('does not fail on mutation', () => {
+    const element = compile(() => <AngularTemplate>
+      <replace-directive/>
+    </AngularTemplate>);
+
+    expect(element.prop('tagName')).to.equal('DIV');
+    expect(element.hasClass('replace')).to.be.true;
+  });
+
+  it('does not fail on repeat', () => {
+    const element = compile(() => <AngularTemplate>
+      <div data-ng-repeat="val in ['a', 'b']" data-ng-class="val"/>
+    </AngularTemplate>);
+
+    expect(element.prop('tagName')).to.equal('DIV');
+    expect(element.length).to.equal(2);
+    expect(element.eq(0).hasClass('a')).to.be.true;
+    expect(element.eq(1).hasClass('b')).to.be.true;
+  });
+
+  it('does not fail on ngIf', () => {
+    const element = compile(() => <AngularTemplate>
+      <div data-ng-if="false"/>
+    </AngularTemplate>);
+
+    expect(element.length).to.equal(0);
   });
 
   it('does not crash on props update', () => {
