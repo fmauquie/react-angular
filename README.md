@@ -34,7 +34,7 @@ export default function SomeComponent(props) {
     label: props.label,
     onClick: ($event) => console.log($event),
   }}>
-    <div data-ng-click="onClick($event">{'{{label}}'}</div>
+    <div data-ng-click="onClick($event)">{'{{label}}'}</div>
   </AngularTemplate>);
 }
 ```
@@ -98,7 +98,7 @@ The class to apply to the wrapper `div`.
 This allows you to control how the wrapper (and the directive inside it) is displayed in your page.
 
 This class will be added to the child JSX element if you're using JSX templates,
-in addition to any cass defined on the child itself.
+in addition to any class defined on the child itself.
 
 ### controller: `String|Function`
 The controller to apply to the template. This is a definition of a controller as in any AngularJS template or route.
