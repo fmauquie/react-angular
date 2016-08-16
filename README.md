@@ -40,8 +40,6 @@ export default function SomeComponent(props) {
 ```
 
 Contrary to template rendering, `AngularTemplate` will _not_ wrap your child into a wrapper `div`.
-The root element should not mutate
-(no `ngIf`, no `ngRepeat`, no `transclude: 'element'` or `replace: true` directives).
 
 There can only be one child to `AngularTemplate`.
 
@@ -241,27 +239,12 @@ you must explicitly ask for the default export:
 var AngularTemplate = require('react-angular').default;
 ```
 
-### Wrapper Element Manipulation
-The wrapper element is managed by React,
-so any outside change to it will cause React to warn and potentially fail to render.
-See Advanced Usage below for a discussion on wrapper tag management and DOM access to the element.
-
 ## Advanced Usage
 
 ### Wrapper element
 By manipulating the wrapper tag (`wrapperTag` and `wrapperAttrs` props),
 you can declare attribute directives directly on the wrapper element (e.g. `data-ng-bind`),
 or even insert an element directive directly as the wrapper tag.
-
-Be careful when you do this. As this element is managed by React, any transformation will result in React
-screaming out. So directives that transform their element will result in strange behavior and React warnings.
-
-This includes:
-- `transclude: 'element'` and `replace: true` directives, like `ngIf` or `ngRepeat`
-- Directives that manipulate the DOM directly, in either `compile` or `link`, like `ngClass`, `ngShow` or `ngHide`
-
-In many instances it is easier and more secure to just add a class to the wrapper `div` using the `className` prop,
-or to change the wrapper element to a `span` using the `wrapperTag` prop.
 
 ### API
 By referencing the `AngularTemplate` component,
@@ -271,6 +254,10 @@ you can get access to several component attributes that allow you to manipulate 
   You can use this to add watchers or event handlers, or to send events.
 - `$element`: This is the wrapper element as a JQLite element.
   You can use this to further manipulate or query the DOM.
+  When using directives that mutate the root element,
+  `$element` may not represent the actual content of the DOM since it could have been replaced, changed,
+  duplicated or removed from the DOM.
+  The API makes no attempt at keeping `$element` up-to-date with extreme and borderline manipulations.
 
 Example:
 ```js
