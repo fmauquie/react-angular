@@ -24,6 +24,45 @@ It should work fine with React 0.14+ and Angular 1.2+,
 but is really only tested with React 15 and Angular 1.5.
 
 ## Usage
+### Rendering JSX Children
+```js
+import React from 'react';
+import AngularTemplate from 'react-angular';
+
+export default function SomeComponent(props) {
+  return (<AngularTemplate scope={{
+    label: props.label,
+    onClick: ($event) => console.log($event),
+  }}>
+    <div data-ng-click="onClick($event">{'{{label}}'}</div>
+  </AngularTemplate>);
+}
+```
+
+Contrary to template rendering, `AngularTemplate` will _not_ wrap your child into a wrapper `div`.
+The root element should not mutate
+(no `ngIf`, no `ngRepeat`, no `transclude: 'element'` or `replace: true` directives).
+
+There can only be one child to `AngularTemplate`.
+
+Once the template is rendered, `AngularTemplate` will leave the control to AngularJS for DOM updates.
+Props updates will _not_ be applied.
+
+The AngularJS application must already be started
+(Angular module must be defined and `ng-app` must be present on a parent element).
+
+There are a number of React rendering gotchas you must be aware of when using JSX to render AngularJS templates:
+- Angular's `{{}}` expression syntax has meaning in JSX.
+  The easiest way to use an expression is to pass a string with the expression in it
+  (like in the example above: `{'{{label}}'}`).
+- React will treat an HTML tag with a dash in it (like a _lot_ of directives) to be custom components.
+  On custom components attributes transformation does not happen, e.g.:
+  - `className` should be written `class` again (this is important: `className` will _not_ work)
+  - There is no need to prefix custom attributes with `data-`
+- Do not try to reference the first child with `ref`. `AngularTemplate` will 'steal' the reference.
+  Instead reference `AngularTemplate` and access the first child through `$element` (see API below).
+
+### Rendering a Template
 ```js
 import React from 'react';
 import AngularTemplate from 'react-angular';
@@ -57,6 +96,9 @@ The AngularJS application must already be started
 The class to apply to the wrapper `div`.
 
 This allows you to control how the wrapper (and the directive inside it) is displayed in your page.
+
+This class will be added to the child JSX element if you're using JSX templates,
+in addition to any cass defined on the child itself.
 
 ### controller: `String|Function`
 The controller to apply to the template. This is a definition of a controller as in any AngularJS template or route.
@@ -149,11 +191,17 @@ If you specify a function, the object provided in `inject` will be passed as the
 
 If both `template` and `templateUrl` are specified, `template` will be used.
 
+You should not use `template` when using JSX children.
+If you choose to do it anyway, the template will be included _after_ the children.
+
 ### templateUrl: `String`
 Use a template from Angular's template cache.
 This allows you to use a template loader or template scripts as the template source.
 
 If both `template` and `templateUrl` are specified, `template` will be used.
+
+You should not use `templateUrl` when using JSX children.
+If you choose to do it anyway, the template will be included _after_ the children.
 
 ### wrapperTag: `String`
 The wrapper tag to use. By default it is a `div`.
@@ -161,12 +209,17 @@ The wrapper tag to use. By default it is a `div`.
 You can change it to a `span` or anything else,
 even an element directive (see Advanced Usage below).
 
+`wrapperTag` is completely ignored when using JSX children.
+
 ### wrapperAttrs: `Object`
 Attributes to apply to the wrapper element.
 
 These will be passed as in JSX, e.g. all non-standard attributes have to be prefixed with `data-`.
 No transformation will be applied to the attributes, so they have to be passed as in HTML
 (e.g. pass `data-ng-bind`, not 'ngBind').
+On a custom component wrapper, no transformation is applied (see Rendering JSX Children above).
+
+`wrapperAttrs` are applied to the root JSX child when using JSX children rendering.
 
 ## Known Caveats and Limitations
 

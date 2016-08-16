@@ -9,6 +9,10 @@ import AngularTemplate from './angularTemplate';
 angular.module('testAngularTemplate', [ngReact.name])
   .value('Component', null)
   .decorator('Component', ($delegate) => angular.module('testAngularTemplate').Component)
+  .directive('plop', () => ({
+    restrict: 'E',
+    template: '<div class="plop"></div>',
+  }))
   .directive('simpleTemplateDirective', () => ({
     restrict: 'E',
     template: '<div class="simple"></div>',
@@ -87,6 +91,29 @@ describe('AngularTemplate', () => {
 
     expect(element.prop('tagName')).to.equal('SIMPLE-TEMPLATE-DIRECTIVE');
     expect(element.children().hasClass('simple')).to.be.true;
+  });
+
+  it('can embed simple directives as JSX with className', () => {
+    const element = compile(() => <AngularTemplate className="plop">
+      <plop className="pof"/>
+    </AngularTemplate>);
+
+    expect(element.prop('tagName')).to.equal('PLOP');
+    expect(element.hasClass('plop')).to.be.true;
+    expect(element.hasClass('pof')).to.be.true;
+    expect(element.children().hasClass('plop')).to.be.true;
+  });
+
+  it('can embed component directives as JSX with className', () => {
+    const element = compile(() => <AngularTemplate className="plop">
+      <simple-template-directive class="pof" ng-bind="'pof'"/>
+    </AngularTemplate>);
+
+    expect(element.prop('tagName')).to.equal('SIMPLE-TEMPLATE-DIRECTIVE');
+    expect(element.hasClass('plop')).to.be.true;
+    expect(element.hasClass('pof')).to.be.true;
+    // ng-bind removes the actual directive content from the element
+    expect(element.html()).to.equal('pof');
   });
 
   it('creates a new scope by default', () => {

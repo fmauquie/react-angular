@@ -1,6 +1,11 @@
 import React, { PropTypes as t } from 'react';
 import angular from 'angular';
 
+// Stolen from ReactCOMComponent (it does not expose it)
+function isCustomComponent(tagName, props) {
+  return tagName.indexOf('-') >= 0 || props.is != null;
+}
+
 export default class ReactAngular extends React.Component {
   componentDidMount() {
     const { controller, controllerAs, inject, isolate, scope, template, templateUrl } = this.props;
@@ -50,18 +55,49 @@ export default class ReactAngular extends React.Component {
   }
 
   render() {
-    const { wrapperTag, className, wrapperAttrs } = this.props;
+    const { wrapperTag, className, wrapperAttrs, children } = this.props;
+    const ref = (element) => this.$element = angular.element(element);
+
+    if (children) {
+      if (!React.isValidElement(children)) {
+        throw new Error(`Only one child is allowed in AngularTemplate.
+          Found ${children.length}: ${children.map(({type}) => type).join(', ')}.`);
+      }
+
+      const classesKey = isCustomComponent(children.type, children.props) ? 'class' : 'className';
+      const classes = {
+        [classesKey]: [className || '', children.props.className || '', children.props['class'] || '']
+          .join(' ')
+          .trim() || undefined,
+      };
+
+      const child = React.cloneElement(children, {
+        ...wrapperAttrs,
+        ref,
+        ...classes,
+      });
+
+      return child;
+    }
+
+    const classesKey = isCustomComponent(wrapperTag, wrapperAttrs) ? 'class' : 'className';
+    const classes = {
+      [classesKey]: [className || '', wrapperAttrs.className || '', wrapperAttrs['class'] || '']
+        .join(' ')
+        .trim() || undefined,
+    };
 
     return React.createElement(wrapperTag, {
       ...wrapperAttrs,
-      ref: (element) => this.$element = angular.element(element),
-      className,
+      ref,
+      ...classes,
     }, '');
   }
 }
 
 ReactAngular.propTypes = {
   className: t.string,
+  children: t.node,
   controller: t.any,
   controllerAs: t.string,
   inject: t.object,
