@@ -1,4 +1,5 @@
-import React, { PropTypes as t } from 'react';
+import React from 'react';
+import t from 'prop-types';
 import angular from 'angular';
 
 // Stolen from ReactCOMComponent (it does not expose it)

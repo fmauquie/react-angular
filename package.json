@@ -40,5 +40,8 @@
     "react-addons-test-utils": "^15.3.0",
     "react-dom": "^15.3.0",
     "webpack": "^1.13.1"
+  },
+  "dependencies": {
+    "prop-types": "^15.5.10"
   }
 }
