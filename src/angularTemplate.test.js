@@ -2,11 +2,13 @@ import angular from 'angular';
 import 'angular-mocks';
 import { expect } from 'chai';
 import ngReact from 'ngreact';
-import React, { PropTypes as t } from 'react';
+import React from 'react';
+import t from 'prop-types';
 
 import AngularTemplate from './angularTemplate';
 
 angular.module('testAngularTemplate', [ngReact.name])
+  .config(($compileProvider) => $compileProvider.debugInfoEnabled(false))
   .value('Component', null)
   .decorator('Component', ($delegate) => angular.module('testAngularTemplate').Component)
   .directive('plop', () => ({

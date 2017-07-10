@@ -7,6 +7,31 @@ function isCustomComponent(tagName, props) {
   return tagName.indexOf('-') >= 0 || props.is != null;
 }
 
+// Make sure the scope is defined when $compileProvider.debugInfoEnabled is false
+export function ensureScopeAvailable(link) {
+  return function ($scope, $element, ...args) {
+    link && link($scope, $element, ...args);
+    $element.data('$scope', $scope);
+  };
+}
+
+const ngReactModule = angular.module('react');
+if (ngReactModule) {
+  ngReactModule.directive('reactComponent', () => ($scope, $elem) => {
+    $elem.data('$scope', $scope)
+  });
+  ngReactModule.decorator('reactDirective', [
+    '$delegate', ($delegate) => (...args) => {
+      const directive = $delegate(...args);
+
+      return {
+        ...directive,
+        link: ensureScopeAvailable(directive.link),
+      };
+    }
+  ]);
+}
+
 export default class ReactAngular extends React.Component {
   componentDidMount() {
     const { controller, controllerAs, inject, isolate, scope, template, templateUrl } = this.props;
@@ -48,6 +73,7 @@ export default class ReactAngular extends React.Component {
     }
 
     $compile(this.$element)(this.$scope);
+    this.$element.data('$scope', this.$scope);
     $rootScope.$evalAsync();
   }
 
@@ -62,7 +88,7 @@ export default class ReactAngular extends React.Component {
     if (children) {
       if (!React.isValidElement(children)) {
         throw new Error(`Only one child is allowed in AngularTemplate.
-          Found ${children.length}: ${children.map(({type}) => type).join(', ')}.`);
+          Found ${children.length}: ${children.map(({ type }) => type).join(', ')}.`);
       }
 
       const classesKey = isCustomComponent(children.type, children.props) ? 'class' : 'className';
