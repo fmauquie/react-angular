@@ -3,9 +3,10 @@ import 'angular-mocks';
 import { expect } from 'chai';
 import ngReact from 'ngreact';
 import React from 'react';
+import ReactDOM from 'react-dom';
 import t from 'prop-types';
 
-import AngularTemplate from './angularTemplate';
+import AngularTemplate, { provideAngularScopeHOC } from './angularTemplate';
 
 angular.module('testAngularTemplate', [ngReact.name])
   .config(($compileProvider) => $compileProvider.debugInfoEnabled(false))
@@ -28,6 +29,18 @@ angular.module('testAngularTemplate', [ngReact.name])
     restrict: 'E',
     replace: true,
     template: '<div class="replace"></div>',
+  }))
+  .directive('manualReact', () => ({
+    restrict: 'E',
+    scope: {
+      props: '&',
+    },
+    link: ($scope, $element) => {
+      ReactDOM.render(React.createElement(angular.module('testAngularTemplate').Component, {
+        ...$scope.props(),
+        $scope,
+      }), $element[0]);
+    }
   }))
 ;
 
@@ -296,5 +309,43 @@ describe('AngularTemplate', () => {
     expect(found.$scope.$parent).to.equal($rootScope);
     expect(found.$element).to.exist;
     expect(found.$element.prop('tagName')).to.equal('DIV');
+  });
+
+  it('passes the scope in the context', () => {
+    const found = {};
+    class Component extends React.Component {
+      componentDidMount() {
+        found.$scope = this.ra.$scope;
+      }
+
+      render() {
+        return (
+          <div>
+            <AngularTemplate ref={(ra) => this.ra = ra}/>
+            <span className="toto">{this.props.toto}</span>
+          </div>
+        );
+      }
+    }
+    Component.propTypes = {
+      toto: t.string.isRequired,
+    };
+
+    const ComponentPassingScope = provideAngularScopeHOC(Component);
+
+    angular.module('testAngularTemplate').Component = ComponentPassingScope;
+    $rootScope.propsToPass = { toto: 'voila' };
+
+    const $element = $compile('<manual-react props="propsToPass"></manual-react>')($rootScope, (clone) => {
+      $container.append(clone);
+    });
+    $rootScope.$digest();
+
+    expect(found.$scope).to.exist;
+    expect(found.$scope.props).to.exist;
+    expect(found.$scope.props()).to.eql({ toto: 'voila' });
+    expect($element.find('span').length).to.equal(1);
+    expect($element.find('span').attr('class')).to.equal('toto');
+    expect($element.find('span').text()).to.equal('voila');
   });
 });

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import t from 'prop-types';
 import angular from 'angular';
 
@@ -36,7 +36,7 @@ export default class ReactAngular extends React.Component {
   componentDidMount() {
     const { controller, controllerAs, inject, isolate, scope, template, templateUrl } = this.props;
 
-    const parentScope = this.$element.scope();
+    const parentScope = this.context.$scope || this.$element.scope();
     const $injector = this.$element.injector();
 
     const $controller = $injector.get('$controller');
@@ -143,3 +143,42 @@ ReactAngular.defaultProps = {
   wrapperTag: 'div',
   wrapperAttrs: {},
 };
+
+const CONTEXT_TYPES = {
+  $scope: t.any,
+};
+
+ReactAngular.contextTypes = CONTEXT_TYPES;
+
+export function provideAngularScopeHOC(Wrapped) {
+  const wrappedName = Wrapped.displayName || Wrapped.name;
+  const wrapperName = `ProvideAngularScope (${wrappedName})`;
+
+  class Wrapper extends Component {
+    getChildContext() {
+      return {
+        $scope: this.props.$scope,
+      };
+    }
+
+    render() {
+      const { $scope, ...props } = this.props;
+
+      if (!$scope) {
+        throw new Error(`Angular scope was not passed as the $scope prop to ${wrapperName}.`);
+      }
+
+      return (
+        <Wrapped {...props} />
+      );
+    }
+  }
+
+  Wrapper.childContextTypes = CONTEXT_TYPES;
+  Wrapper.propTypes = {
+    ...(Wrapped.propTypes || {}),
+    ...CONTEXT_TYPES,
+  };
+
+  return Wrapper;
+}
