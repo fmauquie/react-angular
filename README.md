@@ -356,6 +356,11 @@ Authors:
 
 ## Changelog
 
+
+v0.3.1
+- Fix usage without `ngReact`
+- Fix exposing HOC and directive link decorator
+
 v0.3.0
 - Allow running with `$compileProvider.debugInfoEnabled(false);` with `ngReact`, a HOC, or a custom directive
 - Document production mode
