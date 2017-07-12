@@ -30,6 +30,17 @@ angular.module('testAngularTemplate', [ngReact.name])
     replace: true,
     template: '<div class="replace"></div>',
   }))
+  .directive('ngReactDirective', (reactDirective) => {
+    const SomeReact = (props) => (
+      <div>
+        <span className="toto">{props.toto}</span>
+        {props.component()}
+      </div>
+    );
+    SomeReact.propTypes = { toto: t.string, component: t.func, };
+
+    return reactDirective(SomeReact);
+  })
   .directive('manualReact', () => ({
     restrict: 'E',
     scope: {
@@ -309,6 +320,25 @@ describe('AngularTemplate', () => {
     expect(found.$scope.$parent).to.equal($rootScope);
     expect(found.$element).to.exist;
     expect(found.$element.prop('tagName')).to.equal('DIV');
+  });
+
+  it('passes the scope in ngReact custom directives', () => {
+    const found = {};
+    const Component = ()  => <AngularTemplate ref={(ra) => found.ra = ra}/>;
+
+    $rootScope.propsToPass = { toto: 'voila' };
+    $rootScope.Component = Component;
+
+    const $element = $compile('<ng-react-directive toto="propsToPass.toto" component="Component" />')($rootScope, (clone) => {
+      $container.append(clone);
+    });
+    $rootScope.$digest();
+
+    expect(found.ra.$scope).to.exist;
+    expect(found.ra.$scope.$parent).to.equal($rootScope);
+    expect($element.find('span').length).to.equal(1);
+    expect($element.find('span').attr('class')).to.equal('toto');
+    expect($element.find('span').text()).to.equal('voila');
   });
 
   it('passes the scope in the context', () => {
