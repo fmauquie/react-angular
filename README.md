@@ -356,6 +356,11 @@ Authors:
 
 ## Changelog
 
+v0.3.0
+- Allow running with `$compileProvider.debugInfoEnabled(false);` with `ngReact`, a HOC, or a custom directive
+- Document production mode
+- Use `prop-types` package
+
 v0.2.0
 - Change directive name to `AngularTemplate` (better readability)
 - JSX children rendering
