@@ -15,21 +15,27 @@ export function ensureScopeAvailable(link) {
   };
 }
 
-const ngReactModule = angular.module('react');
-if (ngReactModule) {
-  ngReactModule.directive('reactComponent', () => ($scope, $elem) => {
-    $elem.data('$scope', $scope)
-  });
-  ngReactModule.decorator('reactDirective', [
-    '$delegate', ($delegate) => (...args) => {
-      const directive = $delegate(...args);
+try {
+  angular.module('react')
+    .directive('reactComponent', () => ($scope, $elem) => {
+      $elem.data('$scope', $scope)
+    })
+    .decorator('reactDirective', [
+      '$delegate', ($delegate) => (...args) => {
+        const directive = $delegate(...args);
 
-      return {
-        ...directive,
-        link: ensureScopeAvailable(directive.link),
-      };
-    }
-  ]);
+        return {
+          ...directive,
+          link: ensureScopeAvailable(directive.link),
+        };
+      }
+    ]);
+} catch (e) {
+  const NOMOD = '[$injector:nomod]';
+  if (e.message.substr(0, NOMOD.length) !== NOMOD) {
+    // Only rethrow if the error does not mean that the 'react' module was not found
+    throw e;
+  }
 }
 
 export default class ReactAngular extends React.Component {
