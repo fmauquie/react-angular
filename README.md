@@ -88,6 +88,49 @@ Props updates will _not_ be applied.
 The AngularJS application must already be started
 (Angular module must be defined and `ng-app` must be present on a parent element).
 
+## Running in production
+In production you should be using `$compileProvider.debugInfoEnabled(false);` as explained in AngularJS documentation.
+
+This may break AngularTemplate, so you need to test it before shipping!
+
+If you're using `ngReact` to embed React components in AngularJS, you do not need to worry,
+as react-angular takes care of ensuring it has everything it needs.
+
+If you are using `ReactDOM.render()` in a custom directive, you need to wrap your React root component in a HOC
+and provide the directive scope to it:
+
+```js
+import { provideAngularScopeHOC } from 'react-angular';
+import { MyRootComponent } from './MyRootComponent';
+
+const MyRootComponentWithScope = provideAngularScopeHOC(MyRootComponent);
+
+angular.module('my-module', [])
+  .directive('myDirective', () => ($scope, $element) => {
+      ReactDOM.render(<MyRootComponent prop1="toto" $scope={$scope} />, $element[0]);
+      // -- OR --
+      ReactDOM.render(React.createElement(MyRootComponent, { prop1: 'toto', $scope }), $element[0]);
+  });
+```
+
+If none of those solutions work, you will need to manually add the Angular scope in a parent element of your React code.
+You can wrap a directive linking function into a call to `ensureScopeAvailable()` to do so:
+
+```js
+import { ensureScopeAvailable } from 'react-angular';
+
+angular.module('my-module', [])
+  .directive('myDirective', () => ({
+    ...someDirectiveDefinition,
+    link: ensureScopeAvailable(function ($scope, $element, $attrs) {
+       // Do some stuff with your directive 
+    }),
+  }))
+  // -- OR use it standalone:
+  .directive('exposeScope', () => ensureScopeAvailable())
+;
+```
+
 ## Basic Props
 
 ### className: `String`
