@@ -9,8 +9,8 @@ function isCustomComponent(tagName, props) {
 
 // Make sure the scope is defined when $compileProvider.debugInfoEnabled is false
 export function ensureScopeAvailable(link) {
-  return function ($scope, $element, ...args) {
-    link && link($scope, $element, ...args);
+  return ($scope, $element, ...args) => {
+    if (link) link($scope, $element, ...args);
     $element.data('$scope', $scope);
   };
 }
@@ -18,17 +18,17 @@ export function ensureScopeAvailable(link) {
 try {
   angular.module('react')
     .directive('reactComponent', () => ($scope, $elem) => {
-      $elem.data('$scope', $scope)
+      $elem.data('$scope', $scope);
     })
     .decorator('reactDirective', [
-      '$delegate', ($delegate) => (...args) => {
+      '$delegate', $delegate => (...args) => {
         const directive = $delegate(...args);
 
         return {
           ...directive,
           link: ensureScopeAvailable(directive.link),
         };
-      }
+      },
     ]);
 } catch (e) {
   const NOMOD = '[$injector:nomod]';
@@ -38,7 +38,7 @@ try {
   }
 }
 
-export default class ReactAngular extends React.Component {
+export default class ReactAngular extends React.PureComponent {
   componentDidMount() {
     const { controller, controllerAs, inject, isolate, scope, template, templateUrl } = this.props;
 
@@ -50,7 +50,11 @@ export default class ReactAngular extends React.Component {
     const $rootScope = $injector.get('$rootScope');
     const $templateCache = $injector.get('$templateCache');
 
-    this.$scope = scope ? parentScope.$new(isolate) : parentScope;
+    if (parentScope) {
+      this.$scope = scope ? parentScope.$new(isolate) : parentScope;
+    } else {
+      this.$scope = scope ? $rootScope.$new(isolate) : $rootScope;
+    }
 
     if (angular.isObject(scope)) {
       angular.extend(this.$scope, scope);
@@ -89,7 +93,7 @@ export default class ReactAngular extends React.Component {
 
   render() {
     const { wrapperTag, className, wrapperAttrs, children } = this.props;
-    const ref = (element) => this.$element = angular.element(element);
+    const ref = element => (this.$element = angular.element(element));
 
     if (children) {
       if (!React.isValidElement(children)) {
@@ -99,23 +103,21 @@ export default class ReactAngular extends React.Component {
 
       const classesKey = isCustomComponent(children.type, children.props) ? 'class' : 'className';
       const classes = {
-        [classesKey]: [className || '', children.props.className || '', children.props['class'] || '']
+        [classesKey]: [className || '', children.props.className || '', children.props.class || '']
           .join(' ')
           .trim() || undefined,
       };
 
-      const child = React.cloneElement(children, {
+      return React.cloneElement(children, {
         ...wrapperAttrs,
         ref,
         ...classes,
       });
-
-      return child;
     }
 
     const classesKey = isCustomComponent(wrapperTag, wrapperAttrs) ? 'class' : 'className';
     const classes = {
-      [classesKey]: [className || '', wrapperAttrs.className || '', wrapperAttrs['class'] || '']
+      [classesKey]: [className || '', wrapperAttrs.className || '', wrapperAttrs.class || '']
         .join(' ')
         .trim() || undefined,
     };
@@ -143,6 +145,12 @@ ReactAngular.propTypes = {
 };
 
 ReactAngular.defaultProps = {
+  className: undefined,
+  children: undefined,
+  controller: undefined,
+  controllerAs: undefined,
+  template: undefined,
+  templateUrl: undefined,
   inject: {},
   isolate: false,
   scope: true,
