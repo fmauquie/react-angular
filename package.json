@@ -1,6 +1,6 @@
 {
   "name": "react-angular",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Use AngularJS 1.x templates in react components",
   "main": "lib/index.js",
   "scripts": {
