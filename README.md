@@ -383,6 +383,9 @@ Authors:
 
 ## Changelog
 
+v0.4.0
+- **Breaking change** You need to add a module to your app's dependencies
+- Make sure we can get a module in production mode with `ngReact`, independently of loading order
 
 v0.3.1
 - Fix usage without `ngReact`
