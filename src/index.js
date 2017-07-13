@@ -1,4 +1,4 @@
-import AngularTemplate, { ensureScopeAvailable, provideAngularScopeHOC } from './angularTemplate';
+import AngularTemplate, { ensureScopeAvailable, provideAngularScopeHOC, reactAngularModule } from './angularTemplate';
 
-export { ensureScopeAvailable, provideAngularScopeHOC };
+export { ensureScopeAvailable, provideAngularScopeHOC, reactAngularModule };
 export default AngularTemplate;

@@ -15,32 +15,56 @@ export function ensureScopeAvailable(link) {
   };
 }
 
-try {
-  angular.module('react')
-    .directive('reactComponent', () => ($scope, $elem) => {
-      $elem.data('$scope', $scope)
-    })
-    .decorator('reactDirective', [
-      '$delegate', ($delegate) => (...args) => {
-        const directive = $delegate(...args);
+let debugInfoEnabled = null;
 
-        return {
-          ...directive,
-          link: ensureScopeAvailable(directive.link),
-        };
-      }
-    ]);
-} catch (e) {
-  const NOMOD = '[$injector:nomod]';
-  if (e.message.substr(0, NOMOD.length) !== NOMOD) {
-    // Only rethrow if the error does not mean that the 'react' module was not found
-    throw e;
+export function reactAngularModule(usesNgReact = true) {
+  const raModule = angular.module('react-angular', usesNgReact ? ['react'] : [])
+    .config([
+      '$compileProvider', ($compileProvider) => {
+        debugInfoEnabled = $compileProvider.debugInfoEnabled.bind($compileProvider);
+      },
+    ])
+    .value('reactAngularProductionReady', () => debugInfoEnabled = () => false);
+
+  if (usesNgReact) {
+    raModule
+      .directive('reactComponent', () => ($scope, $elem) => {
+        $elem.data('$scope', $scope)
+      })
+      .decorator('reactDirective', [
+        '$delegate', ($delegate) => (...args) => {
+          const directive = $delegate(...args);
+
+          return {
+            ...directive,
+            link: ensureScopeAvailable(directive.link),
+          };
+        }
+      ])
+      .run(['reactAngularProductionReady', (reactAngularProductionReady) => reactAngularProductionReady()]);
   }
+
+  return raModule;
 }
 
 export default class ReactAngular extends React.Component {
   componentDidMount() {
     const { controller, controllerAs, inject, isolate, scope, template, templateUrl } = this.props;
+
+    if (!this.context.$scope && !debugInfoEnabled) {
+      console.warn(
+        '[react-angular] It looks like you have not added the react-angular module to your dependencies.',
+        `Check react-angular documentation, section 'Running in production'.`
+      );
+    }
+    if (!this.context.$scope && debugInfoEnabled && debugInfoEnabled()) {
+      console.warn(
+        '[react-angular] It looks like you have declared that you are not using ngReact.',
+        'You should use either provideAngularScopeHOC(), or ensureScopeAvailable().',
+        `If you are using ensureScopeAvailable() and you don't want to see this warning again, call the reactAngularProductionReady() service in your module's init() block.`,
+        `Check react-angular documentation, section 'Running in production'.`
+      );
+    }
 
     const parentScope = this.context.$scope || this.$element.scope();
     const $injector = this.$element.injector();

@@ -6,9 +6,9 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import t from 'prop-types';
 
-import AngularTemplate, { provideAngularScopeHOC } from './angularTemplate';
+import AngularTemplate, { provideAngularScopeHOC, reactAngularModule } from './angularTemplate';
 
-angular.module('testAngularTemplate', [ngReact.name])
+angular.module('testAngularTemplate', [ngReact.name, reactAngularModule().name])
   .config(($compileProvider) => $compileProvider.debugInfoEnabled(false))
   .value('Component', null)
   .decorator('Component', ($delegate) => angular.module('testAngularTemplate').Component)

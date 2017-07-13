@@ -23,6 +23,22 @@ although it isn't materialized in dependencies.
 It should work fine with React 0.14+ and Angular 1.2+,
 but is really only tested with React 15 and Angular 1.5.
 
+Once installed, create the `react-angular` module and add it to your module's dependencies:
+
+```js
+import { reactAngularModule } from 'react-angular';
+
+// If you are using ngReact
+angular.module('app', [reactAngularModule(true).name])
+  // ...
+  ;
+
+// If you are NOT using ngReact
+angular.module('app', [reactAngularModule(false).name])
+  // ...
+  ;
+```
+
 ## Usage
 ### Rendering JSX Children
 ```js
@@ -93,8 +109,9 @@ In production you should be using `$compileProvider.debugInfoEnabled(false);` as
 
 This may break AngularTemplate, so you need to test it before shipping!
 
-If you're using `ngReact` to embed React components in AngularJS, you do not need to worry,
-as react-angular takes care of ensuring it has everything it needs.
+If you're using `ngReact` to embed React components in AngularJS,
+and declared it when adding the react-angular module to your dependencies,
+you do not need to worry: react-angular takes care of ensuring it has everything it needs.
 
 If you are using `ReactDOM.render()` in a custom directive, you need to wrap your React root component in a HOC
 and provide the directive scope to it:
@@ -129,6 +146,16 @@ angular.module('my-module', [])
   // -- OR use it standalone:
   .directive('exposeScope', () => ensureScopeAvailable())
 ;
+```
+
+The `AngularTemplate` directive will complain in development that you should be careful.
+When you have made sure you _are_ indeed careful,
+you can suppress this warning by adding the following snippet in your Angular module:
+
+```js
+angular.module('app', [reactAngularModule(false).name])
+  .run((reactAngularProductionReady) => reactAngularProductionReady())
+  ;
 ```
 
 ## Basic Props
