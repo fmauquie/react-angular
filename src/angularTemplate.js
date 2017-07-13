@@ -132,7 +132,7 @@ export default class ReactAngular extends React.PureComponent {
 
 ReactAngular.propTypes = {
   className: t.string,
-  children: t.node.isRequired,
+  children: t.node,
   controller: t.any,
   controllerAs: t.string,
   inject: t.object,
@@ -146,6 +146,7 @@ ReactAngular.propTypes = {
 
 ReactAngular.defaultProps = {
   className: undefined,
+  children: undefined,
   controller: undefined,
   controllerAs: undefined,
   template: undefined,
