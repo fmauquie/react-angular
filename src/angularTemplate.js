@@ -110,6 +110,15 @@ export default class ReactAngular extends React.Component {
   shouldComponentUpdate() {
     return false;
   }
+  
+  /**
+   * Remove React components mounted to angular template
+   */
+  componentWillUnmount() {
+    this.$element.find('react-component').each(function () { // keep function because this is current element
+      ReactDOM.unmountComponentAtNode(this);
+    });
+  }
 
   render() {
     const { wrapperTag, className, wrapperAttrs, children } = this.props;
