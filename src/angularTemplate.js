@@ -111,6 +111,12 @@ export default class ReactAngular extends React.Component {
     return false;
   }
 
+  componentWillUnmount() {
+    if (this.$scope) {
+      this.$scope.$destroy();
+    }
+  }
+
   render() {
     const { wrapperTag, className, wrapperAttrs, children } = this.props;
     const ref = (element) => this.$element = angular.element(element);
